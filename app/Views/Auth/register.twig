@@ -1,0 +1,39 @@
+{% extends "_base.twig" %}
+
+{% block head %}
+<title>SpendWise | Register</title>
+{% endblock %}
+
+{% block main %}
+<div class="container mx-auto flex flex-col w-full h-full justify-center items-center mt-8">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="flex flex-col justify-center items-center">
+      <h1 class="text-center text-4xl font-bold text-[#fefefe]">
+        Register for <span class="text-[#1AC468]">$pend</span><span class="text-[#FAB12F]">Wise</span>
+      </h1>
+      <form action="{{ app_url }}/register" method="POST" class="flex flex-col gap-4 mt-4 bg-[#E7FBB4] rounded-md px-12 py-4 text-black">
+        <div class="flex flex-col gap-2">
+          <label for="name" class="text-[#4c806e]">Name</label>
+          <input type="text" name="name" class="rounded-md p-2" required />
+        </div>
+        <div class="flex flex-col gap-2">
+          <label for="email" class="text-[#4c806e]">Email</label>
+          <input type="email" name="email" class="rounded-md p-2" required />
+        </div>
+        <div class="flex flex-col gap-2">
+          <label for="password" class="text-[#4c806e]">Password</label>
+          <input type="password" name="password" class="rounded-md p-2" required />
+        </div>
+        <div class="flex flex-col gap-2">
+          <label for="confirm_password" class="text-[#4c806e]">Confirm Password</label>
+          <input type="password" name="confirm_password" class="rounded-md p-2" required />
+        </div>
+        <button type="submit" class="bg-[#1AC468] rounded-md p-2 mt-4 transition hover:scale-105 ease-out">Register</button>
+      </form>
+    </div>
+    <div class="flex justify-center items-center">
+      <img src="{{ app_url }}/assets/presentation.png" alt="Browser Window" class="ml-12" />
+    </div>
+  </div>
+</div>
+{% endblock %}
