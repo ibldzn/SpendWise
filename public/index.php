@@ -30,6 +30,7 @@ $router->get('/register', [$authController, 'viewRegister']);
 $router->post('/register', [$authController, 'register']);
 $router->get('/login', [$authController, 'viewLogin']);
 $router->post('/login', [$authController, 'login']);
+$router->get('/logout', [$authController, 'logout']);
 
 $router->set404([$homeController, 'notFound']);
 

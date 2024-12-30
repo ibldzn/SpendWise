@@ -31,5 +31,6 @@ class BaseController
             'flash' => Session::get('flash') ?? null
         ]);
         echo $this->twig->render($view, $data);
+        Session::remove('flash');
     }
 }

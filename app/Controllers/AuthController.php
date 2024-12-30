@@ -30,7 +30,7 @@ class AuthController extends BaseController
             $usr = $this->userService->getUserByEmail($email);
 
             if (!$usr || !password_verify($password, $usr->password)) {
-                echo $this->render('Auth/login.twig', ['flash' => 'Invalid credentials']);
+                Redirect::withFlash('Invalid credentials')->back();
                 return;
             }
 
@@ -76,5 +76,11 @@ class AuthController extends BaseController
             echo $this->render('Auth/register.twig', ['flash' => $e->getMessage()]);
             return;
         }
+    }
+
+    public function logout(): void
+    {
+        Session::destroy();
+        Redirect::to('login');
     }
 }
