@@ -23,6 +23,12 @@ class Session
         return $_SESSION[$key] ?? null;
     }
 
+    public static function getOrDefault(string $key, mixed $default): mixed
+    {
+        self::start();
+        return $_SESSION[$key] ?? $default;
+    }
+
     public static function remove(string $key): void
     {
         self::start();

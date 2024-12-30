@@ -19,4 +19,9 @@ class Redirect
         Session::set($key, $value);
         return new static();
     }
+
+    public static function withFlash(string $message): static
+    {
+        return self::with('flash', $message);
+    }
 }
