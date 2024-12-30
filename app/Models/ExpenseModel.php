@@ -8,7 +8,6 @@ class ExpenseModel
         public int $id = 0,
         public int $user_id = 0,
         public float $amount,
-        public string $description,
         public string $created_at = '',
         public string $updated_at = '',
     ) {
@@ -23,7 +22,6 @@ class ExpenseModel
             id: $array['id'],
             user_id: $array['user_id'],
             amount: $array['amount'],
-            description: $array['title'],
             created_at: $array['created_at'] ?? '',
             updated_at: $array['updated_at'] ?? '',
         );

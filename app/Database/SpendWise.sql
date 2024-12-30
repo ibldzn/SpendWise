@@ -12,7 +12,6 @@ CREATE TABLE IF NOT EXISTS `expenses` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
   `amount` decimal(10,2) NOT NULL,
-  `description` varchar(255) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
