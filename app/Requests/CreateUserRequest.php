@@ -4,6 +4,14 @@ namespace App\Requests;
 
 class CreateUserRequest
 {
+    /**
+     * CreateUserRequest constructor.
+     *
+     * @param string $name
+     * @param string $email
+     * @param string $password
+     * @param string $confirm_password
+    */
     public function __construct(
         public string $name,
         public string $email,
@@ -12,6 +20,11 @@ class CreateUserRequest
     ) {
     }
 
+    /**
+     * Validate the request
+     *
+     * @throws \Exception If the request is invalid
+    */
     public function validate(): void
     {
         if (empty($this->name)) {

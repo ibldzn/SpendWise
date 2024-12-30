@@ -9,6 +9,11 @@ class Database
 {
     private static ?PDO $instance = null;
 
+    /**
+     * Get an instance of the PDO connection
+     *
+     * @return PDO
+    */
     public static function getInstance(): PDO
     {
         if (self::$instance === null) {

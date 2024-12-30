@@ -12,6 +12,9 @@ class BaseController
 {
     private Environment $twig;
 
+    /**
+     * BaseController constructor.
+    */
     public function __construct()
     {
         $loader = new FilesystemLoader(__DIR__ . '/../Views');
@@ -22,8 +25,10 @@ class BaseController
     }
 
     /**
-     * @param array<mixed,mixed> $data The data to be passed to the view
-     */
+     * Render a view
+     * @param string|TemplateWrapper $view The view to render
+     * @param array $data The data to pass to the view
+    */
     protected function render(string|TemplateWrapper $view, array $data = []): void
     {
         $data = array_merge($data, [

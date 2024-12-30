@@ -10,17 +10,27 @@ use App\Services\UserService;
 
 class AuthController extends BaseController
 {
+    /**
+     * AuthController constructor.
+     * @param UserService $userService
+    */
     public function __construct(
         private UserService $userService
     ) {
         parent::__construct();
     }
 
+    /**
+     * Render the login view
+    */
     public function viewLogin(): void
     {
         echo $this->render('Auth/login.twig');
     }
 
+    /**
+     * Handle the login request
+    */
     public function login(): void
     {
         try {
@@ -42,11 +52,17 @@ class AuthController extends BaseController
         }
     }
 
+    /**
+     * Render the register view
+    */
     public function viewRegister(): void
     {
         echo $this->render('Auth/register.twig');
     }
 
+    /**
+     * Handle the register request
+    */
     public function register(): void
     {
         try {
@@ -78,6 +94,9 @@ class AuthController extends BaseController
         }
     }
 
+    /**
+     * Handle the logout request
+    */
     public function logout(): void
     {
         Session::destroy();

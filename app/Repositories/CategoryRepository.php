@@ -2,12 +2,12 @@
 
 namespace App\Repositories;
 
-class UserRepository extends BaseRepository
+class CategoryRepository extends BaseRepository
 {
-    protected string $table = 'users';
+    private string $table = 'categories';
 
     /**
-     * UserRepository constructor.
+     * CategoryRepository constructor.
     */
     public function __construct()
     {
