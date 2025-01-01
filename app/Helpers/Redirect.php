@@ -8,10 +8,14 @@ class Redirect
      * Redirect to a given URL
      *
      * @param string $url The URL to redirect to
+     * @param array<string,mixed> $params The parameters to append to the URL
      * @param int $statusCode The status code of the redirect (default: 302)
     */
-    public static function to(string $url, int $statusCode = 302): void
+    public static function to(string $url, array $params = [], int $statusCode = 302): void
     {
+        if (count($params) > 0) {
+            $url .= '?' . http_build_query($params);
+        }
         header("Location: {$_ENV['APP_URL']}/{$url}", true, $statusCode);
     }
 
