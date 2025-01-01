@@ -15,7 +15,10 @@ class ExpenseModel extends BaseModel
     public function __construct(
         public int $id = 0,
         public int $user_id = 0,
+        public int $category_id = 0,
+        public string $name = '',
         public float $amount = 0.0,
+        public string $date = '',
         public string $created_at = '',
         public string $updated_at = '',
     ) {
@@ -32,7 +35,10 @@ class ExpenseModel extends BaseModel
         return new ExpenseModel(
             id: $array['id'],
             user_id: $array['user_id'],
+            category_id: $array['category_id'],
+            name: $array['name'],
             amount: $array['amount'],
+            date: $array['date'],
             created_at: $array['created_at'] ?? '',
             updated_at: $array['updated_at'] ?? '',
         );
