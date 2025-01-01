@@ -4,7 +4,7 @@ namespace App\Repositories;
 
 class CategoryRepository extends BaseRepository
 {
-    private string $table = 'categories';
+    protected string $table = 'categories';
 
     /**
      * CategoryRepository constructor.
