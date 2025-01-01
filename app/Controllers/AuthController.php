@@ -37,8 +37,9 @@ class AuthController extends BaseController
             $email = $_POST['email'];
             $password = $_POST['password'];
             $payload = new LoginRequest(email: $email, password: $password);
-            $usr = $this->userService->getUserByEmail($email);
+            $payload->validate();
 
+            $usr = $this->userService->getUserByEmail($email);
             if (!$usr || !password_verify($password, $usr->password)) {
                 Redirect::withFlash('Invalid credentials')->back();
                 return;
@@ -77,7 +78,6 @@ class AuthController extends BaseController
                 password: $password,
                 confirm_password: $confirmPassword,
             );
-
             $payload->validate();
 
             $usr = $this->userService->getUserByEmail($email);
