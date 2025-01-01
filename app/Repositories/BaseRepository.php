@@ -29,6 +29,9 @@ class BaseRepository
         $this->query = [
             'select' => '*',
             'where' => [],
+            'join' => [],
+            'groupBy' => null,
+            'orderBy' => [],
             'limit' => null,
             'offset' => null,
             'lock' => null,
@@ -71,6 +74,20 @@ class BaseRepository
     }
 
     /**
+     * Add a JOIN clause to the query
+     *
+     * @param string $table The table to join
+     * @param string $on The ON condition for the join
+     * @param string $type The type of join (INNER, LEFT, RIGHT, etc.)
+     * @return static
+     */
+    public function join(string $table, string $on, string $type = 'INNER'): static
+    {
+        $this->query['join'][] = "$type JOIN $table ON $on";
+        return $this;
+    }
+
+    /**
      * Add a where clause to the query
      *
      * @param array<string,mixed> $conditions The conditions to add to the where clause, where the key is the column and the value is the value to match. Multiple conditions are treated as an OR whereas multiple keys in a condition are treated as an AND
@@ -82,6 +99,7 @@ class BaseRepository
             $whereClause = [];
             foreach ($condition as $column => $value) {
                 $placeholder = ':' . $column . '_' . count($this->bindings);
+                $placeholder = str_replace('.', '_', $placeholder);
                 $whereClause[] = "$column = $placeholder";
                 $this->bindings[$placeholder] = $value;
             }
@@ -111,6 +129,32 @@ class BaseRepository
     public function offset(int $offset): static
     {
         $this->query['offset'] = $offset;
+        return $this;
+    }
+
+    /**
+     * Add a GROUP BY clause to the query
+     *
+     * @param string|array $columns The column(s) to group by
+     * @return static
+     */
+    public function groupBy(string|array $columns): static
+    {
+        $this->query['groupBy'] = is_array($columns) ? implode(', ', $columns) : $columns;
+        return $this;
+    }
+
+    /**
+     * Add an ORDER BY clause to the query
+     *
+     * @param string|array $columns The column(s) to order by
+     * @param string $direction The direction to order by (ASC or DESC)
+     * @return static
+     */
+    public function orderBy(string|array $columns, string $direction = 'ASC'): static
+    {
+        $columns = is_array($columns) ? implode(', ', $columns) : $columns;
+        $this->query['orderBy'][] = "$columns $direction";
         return $this;
     }
 
@@ -202,8 +246,20 @@ class BaseRepository
     {
         $sql = "SELECT {$this->query['select']} FROM {$this->table}";
 
+        if (!empty($this->query['join'])) {
+            $sql .= ' ' . implode(' ', $this->query['join']);
+        }
+
         if (!empty($this->query['where'])) {
             $sql .= ' WHERE ' . implode(' OR ', $this->query['where']);
+        }
+
+        if (!empty($this->query['groupBy'])) {
+            $sql .= " GROUP BY {$this->query['groupBy']}";
+        }
+
+        if (!empty($this->query['orderBy'])) {
+            $sql .= ' ORDER BY ' . implode(', ', $this->query['orderBy']);
         }
 
         if ($this->query['limit']) {
