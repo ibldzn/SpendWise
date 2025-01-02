@@ -1,0 +1,265 @@
+{% extends "_base.twig" %}
+
+{% block head %}
+<script src="https://kit.fontawesome.com/ce1c04a23c.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>SpendWise | Dashboard</title>
+{% endblock %}
+
+{% block main %}
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-4xl font-bold text-center text-[#fefefe] mb-4">Dashboard</h1>
+
+  <!-- Overlay -->
+  <div id="overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40"></div>
+
+  <!-- Popup Form -->
+  <div id="popup" class="hidden fixed inset-0 z-50 flex items-center justify-center">
+    <div class="bg-[#DF6D2D] p-6 rounded-lg shadow-lg w-full max-w-md">
+      <h1 class="text-2xl font-bold text-[#fefefe] mb-4">Add Expense</h1>
+      <form action="{{ app_url }}/add-expense" method="POST" class="space-y-2 text-[#638C6D]">
+        <div class="flex flex-col">
+          <label for="name" class="text-[#fefefe]">Name</label>
+          <input 
+            type="text" 
+            name="name"
+            placeholder="Name" 
+            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            required 
+          />
+        </div>
+        <div class="flex flex-col">
+          <label for="amount" class="text-[#fefefe]">Amount</label>
+          <input 
+            type="text"
+            name="amount"
+            placeholder="5000" 
+            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            required 
+          />
+        </div>
+        <div class="flex flex-col">
+          <label for="category" class="text-[#fefefe] flex justify-between items-center">
+            Category <a href="{{ app_url }}/profile/categories" class="text-xs text-blue-800 hover:underline">&lpar;Add category&rpar;</a>
+          </label>
+          <select 
+            name="category" 
+            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            required
+          >
+            {% for category in categories %}
+              <option value="{{ category.id }}">{{ category.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="flex flex-col">
+          <label for="date" class="text-[#fefefe]">Date</label>
+          <input 
+            type="date" 
+            name="date"
+            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            value="{{ now|date('Y-m-d') }}"
+            required
+          />
+        </div>
+        <div class="flex gap-2 w-full">
+          <button 
+            type="submit" 
+            class="w-full py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600"
+          >
+            Submit
+          </button>
+          <button 
+            id="closePopup" 
+            class="w-full py-2 bg-red-600 text-white rounded-lg shadow-md hover:bg-red-700"
+          >
+            Close
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="flex justify-end">
+    <select
+      id="choosen-date"
+      name="choosen-date"
+      onchange="window.location.href = `{{ app_url }}/dashboard?date=${this.value}`"
+      class="p-2 bg-[#DF6D2D] text-[#E7FBB4] border rounded outline-none w-48"
+      required
+    >
+      {% for date in dates %}
+        <option value="{{ date }}">{{ date|date('F Y') }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="flex flex-col justify-center">
+    <div class="self-center p-4 rounded-md">
+      {% if chart_js_data.labels|length > 0 %}
+        <canvas id="expenseChart" class="max-h-80"></canvas>
+      {% else %}
+        <h1 class="text-xl md:text-2xl font-bold text-center text-[#fefefe]">No expenses found</h1>
+      {% endif %}
+    </div>
+    <div class="flex justify-center gap-4 mt-4">
+      <div id="legend-container"></div>
+    </div>
+    <div class="flex flex-col bg-[#97C2A1] p-4 rounded-md mt-4 w-full md:w-1/2 self-center">
+      <div class="flex justify-between items-center text-[#fefefe]">
+        {% set total_expense = 0 %}
+        {% for item in items %}
+          {% set total_expense = total_expense + item.amount %}
+        {% endfor %}
+        <h3 class="text-lg font-bold">You&apos;ve spent: {{ total_expense|format_currency('IDR') }}</h3>
+        <button id="openPopup" class="bg-[#DF6D2D] text-[#E7FBB4] p-2 rounded-md">Add Expense</button>
+      </div>
+      {% for item in items %}
+        <div class="flex justify-between items-center mt-4 text-[#fefefe]">
+          <div class="flex flex-col gap-1">
+            <span class="text-lg">{{ item.name }}</span>
+            <div class="flex items-center gap-1">
+              <div class="rounded-full h-2 w-2 bg-[{{ item.category_color }}]"></div>
+              <span class="text-xs">{{ item.category }}</span>
+            </div>
+          </div>
+          <span class="text-lg">{{ item.amount|format_currency('IDR') }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+<script>
+const getOrCreateLegendList = (chart, id) => {
+  const legendContainer = document.getElementById(id);
+  let listContainer = legendContainer.querySelector('ul');
+
+  if (!listContainer) {
+    listContainer = document.createElement('ul');
+    listContainer.style.display = 'flex';
+    listContainer.style.flexDirection = 'row';
+    listContainer.style.margin = 0;
+    listContainer.style.padding = 0;
+
+    legendContainer.appendChild(listContainer);
+  }
+
+  return listContainer;
+};
+
+const htmlLegendPlugin = {
+  id: 'htmlLegend',
+  afterUpdate(chart, args, options) {
+    const ul = getOrCreateLegendList(chart, options.containerID);
+
+    // Remove old legend items
+    while (ul.firstChild) {
+      ul.firstChild.remove();
+    }
+
+    // Reuse the built-in legendItems generator
+    const items = chart.options.plugins.legend.labels.generateLabels(chart);
+
+    items.forEach(item => {
+      const li = document.createElement('li');
+      li.style.alignItems = 'center';
+      li.style.cursor = 'pointer';
+      li.style.display = 'flex';
+      li.style.flexDirection = 'row';
+      li.style.marginLeft = '10px';
+
+      li.onclick = () => {
+        const { type } = chart.config;
+        if (type === 'pie' || type === 'doughnut') {
+          // Pie and doughnut charts only have a single dataset and visibility is per item
+          chart.toggleDataVisibility(item.index);
+        } else {
+          chart.setDatasetVisibility(item.datasetIndex, !chart.isDatasetVisible(item.datasetIndex));
+        }
+        chart.update();
+      };
+
+      // Color box
+      const boxSpan = document.createElement('span');
+      boxSpan.style.background = item.fillStyle;
+      boxSpan.style.borderColor = item.strokeStyle;
+      boxSpan.style.borderWidth = item.lineWidth + 'px';
+      boxSpan.style.display = 'inline-block';
+      boxSpan.style.flexShrink = 0;
+      boxSpan.style.height = '20px';
+      boxSpan.style.marginRight = '10px';
+      boxSpan.style.width = '20px';
+      boxSpan.style.borderRadius = '99999px';
+
+      // Text
+      const textContainer = document.createElement('p');
+      textContainer.style.color = item.fontColor;
+      textContainer.style.margin = 0;
+      textContainer.style.padding = 0;
+      textContainer.style.textDecoration = item.hidden ? 'line-through' : '';
+
+      const text = document.createTextNode(item.text);
+      textContainer.appendChild(text);
+
+      li.appendChild(boxSpan);
+      li.appendChild(textContainer);
+      ul.appendChild(li);
+    });
+  }
+};
+
+// Sample data for the doughnut chart
+const chart = document.getElementById('expenseChart');
+if (chart)
+{
+  const ctx = chart.getContext('2d');
+  const expenseChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: {{ chart_js_data.labels|json_encode()|raw }},
+      datasets: [{
+          label: 'Expenses',
+          data: {{ chart_js_data.prices|json_encode()|raw }},
+          backgroundColor: {{ chart_js_data.colors|json_encode()|raw }}
+      }],
+    },
+    options: {
+      plugins: {
+        htmlLegend: {
+          // ID of the container to put the legend in
+          containerID: 'legend-container',
+        },
+        legend: {
+          display: false,
+        },
+      },
+      responsive: true,
+      color: '#E7FBB4',
+    },
+    plugins: [htmlLegendPlugin],
+  });
+}
+
+const popup = document.getElementById('popup');
+const overlay = document.getElementById('overlay');
+const openPopupBtn = document.getElementById('openPopup');
+const closePopupBtn = document.getElementById('closePopup');
+
+// Open popup
+openPopupBtn.addEventListener('click', () => {
+    popup.classList.remove('hidden');
+    overlay.classList.remove('hidden');
+});
+
+// Close popup
+const closePopup = () => {
+    popup.classList.add('hidden');
+    overlay.classList.add('hidden');
+};
+
+closePopupBtn.addEventListener('click', closePopup);
+overlay.addEventListener('click', closePopup);
+
+const urlParams = new URLSearchParams(window.location.search);
+const choosenDate = document.getElementById('choosen-date');
+choosenDate.value = urlParams.get('date');
+</script>
+{% endblock %}

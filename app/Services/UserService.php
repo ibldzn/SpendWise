@@ -9,6 +9,7 @@ use App\Repositories\CategoryRepository;
 use App\Repositories\ExpenseRepository;
 use App\Repositories\UserRepository;
 use App\Requests\CreateUserRequest;
+use App\Requests\UpdateUserRequest;
 
 class UserService
 {
@@ -39,7 +40,7 @@ class UserService
     */
     public function getUserById(int $id): ?UserModel
     {
-        $usr = $this->userRepository->select('*')->where(['id' => $id])->limit(1)->fetch();
+        $usr = $this->userRepository->select('*')->where(['id' => $id])->first();
         if ($usr) {
             return UserModel::constructFromArray($usr);
         }
@@ -54,9 +55,9 @@ class UserService
     */
     public function getUserByEmail(string $email): ?UserModel
     {
-        $usr = $this->userRepository->select('*')->where(['email' => $email])->limit(1)->fetch();
+        $usr = $this->userRepository->select('*')->where(['email' => $email])->first();
         if ($usr) {
-            return UserModel::constructFromArray($usr[0]);
+            return UserModel::constructFromArray($usr);
         }
         return null;
     }
@@ -78,8 +79,21 @@ class UserService
      * @param UserModel $user The user to update
      * @return bool True if the user was updated, false otherwise
     */
-    public function updateUser(UserModel $user): bool
+    public function updateUser(int $userID, UpdateUserRequest $payload): bool
     {
+        $user = $this->getUserById($userID);
+        if (!$user) {
+            return false;
+        }
+
+        // check if password has been changed
+        if (!password_verify($payload->new_password, $user->password)) {
+            $user->password = password_hash($payload->new_password, PASSWORD_DEFAULT);
+        }
+
+        $user->name = $payload->name;
+        $user->email = $payload->email;
+
         return $this->userRepository->update(get_object_vars($user), ['id' => $user->id]);
     }
 

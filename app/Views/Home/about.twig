@@ -1,0 +1,42 @@
+{% extends "_base.twig" %}
+
+{% block head %}
+<title>SpendWise | About</title>
+{% endblock %}
+
+{% block main %}
+<div class="container mx-auto flex flex-col w-full h-full justify-center items-center mt-4">
+  <h1 class="text-center text-4xl font-bold text-[#fefefe]">
+    About <span class="text-[#1AC468]">$pend</span><span class="text-[#FAB12F]">Wise</span>
+  </h1>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="flex flex-col justify-center items-center">
+      <p class="text-lg text-gray-200 mt-4">A simple budgeting app to help you manage your finances.</p>
+      <a href="{{ app_url ~ '/register' }}" class="bg-[#1AC468] rounded-md p-2 mt-4 transition hover:scale-105 ease-out">Get Started</a>
+    </div>
+    <div class="flex justify-center items-center">
+      <img src="{{ app_url }}/assets/browser-window.png" alt="Browser Window" class="ml-12" />
+    </div>
+  </div>
+  <div class="mt-8">
+    <h2 class="text-2xl font-bold text-[#fefefe]">Features</h2>
+    <ul class="text-lg text-gray-200 mt-4">
+      <li>Track your expenses</li>
+      <li>Set budgets</li>
+      <li>View your spending habits</li>
+      <li>Get insights on your spending</li>
+    </ul>
+    <h2 class="text-2xl font-bold text-[#fefefe] mt-8">Technologies Used</h2>
+    <ul class="text-lg text-gray-200 mt-4">
+      <li>PHP</li>
+      <li>MySQL</li>
+      <li>Tailwind CSS</li>
+      <li>Alpine.js</li>
+    </ul>
+  </div>
+  <div class="mt-8">
+    <h2 class="text-2xl font-bold text-[#fefefe]">About the Developer</h2>
+    <p class="text-lg text-gray-200 mt-4">I am a web developer who loves to build web applications. I am passionate about creating software that helps people solve problems. I am always looking for new challenges and opportunities to learn new things.</p>
+  </div>
+</div>
+{% endblock %}

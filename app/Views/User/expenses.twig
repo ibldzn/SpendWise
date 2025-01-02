@@ -1,0 +1,66 @@
+{% extends "User/_layout.twig" %}
+
+{% block content %}
+<h1 class="text-4xl font-bold text-[#fefefe] mb-4">Expenses</h1>
+<div class="flex items-center justify-between">
+  <select
+    id="choosen-date"
+    name="choosen-date"
+    onchange="window.location.href = `{{ app_url }}/profile/expenses?date=${this.value}`"
+    class="p-2 bg-[#DF6D2D] text-[#E7FBB4] border rounded outline-none w-48"
+    required
+  >
+    {% for date in dates %}
+      <option value="{{ date }}">{{ date|date('F Y') }}</option>
+    {% endfor %}
+  </select>
+  <button id="export-expenses" class="bg-[#E7FBB4] text-[#638C6D] px-4 py-2 rounded-lg hover:bg-[#638C6D] hover:text-[#E7FBB4]">
+    Export
+  </button>
+</div>
+<div class="flex flex-col gap-2 mt-4">
+  <table class="w-full bg-[#E7FBB4] rounded-lg">
+    <thead>
+      <tr>
+        <th class="px-4 py-2 text-[#638C6D]">Name</th>
+        <th class="px-4 py-2 text-[#638C6D]">Amount</th>
+        <th class="px-4 py-2 text-[#638C6D]">Category</th>
+        <th class="px-4 py-2 text-[#638C6D]">Date</th>
+        <th class="px-4 py-2 text-[#638C6D]">Actions</th>
+      </tr>
+    </thead>
+    <tbody class="border-t border-zinc-300">
+      {% set total_expense = 0 %}
+      {% for expense in expenses %}
+        {% set total_expense = total_expense + expense.amount %}
+        <tr>
+          <td class="px-4 py-2 text-[#638C6D]">{{ expense.name }}</td>
+          <td class="px-4 py-2 text-[#638C6D]">{{ expense.amount|format_currency('IDR') }}</td>
+          <td class="px-4 py-2 text-[#638C6D] flex gap-2 items-center">
+            <div class="mt-1 w-2 h-2 rounded-full bg-[{{ expense.category_color  }}]"></div>
+            <span>{{ expense.category }}</span>
+          </td>
+          <td class="px-4 py-2 text-[#638C6D]">{{ expense.date|date('d M Y') }}</td>
+          <td class="px-4 py-2 text-[#638C6D]">
+            <button class="edit-expense text-[#638C6D] hover:text-[#DF6D2D]">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="delete-expense text-[#638C6D] hover:text-[#DF6D2D]">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot class="border-t border-zinc-300">
+      <tr>
+      <td class="px-4 py-2 text-[#638C6D] font-bold">Total</td>
+      <td class="px-4 py-2 text-[#638C6D]">{{ total_expense|format_currency('IDR') }}</td>
+      <td class="px-4 py-2 text-[#638C6D]"></td>
+      <td class="px-4 py-2 text-[#638C6D]"></td>
+      <td class="px-4 py-2 text-[#638C6D]"></td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+{% endblock %}

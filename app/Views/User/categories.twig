@@ -1,0 +1,157 @@
+{% extends "User/_layout.twig" %}
+
+{% block content %}
+<div id="overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40"></div>
+
+<div id="popup" class="hidden fixed inset-0 z-50 flex items-center justify-center">
+  <div class="bg-[#DF6D2D] p-6 rounded-lg shadow-lg w-full max-w-md">
+    <h1 class="text-2xl font-bold text-[#fefefe] mb-4">Add Category</h1>
+    <form action="{{ app_url }}/add-category" method="POST" class="text-[#638C6D]">
+      <div class="flex items-center gap-2">
+        <input
+          type="text"
+          name="name"
+          placeholder="Name"
+          class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+          required
+        />
+        <input
+          type="color"
+          name="color"
+          class="w-24 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+          required
+        />
+      </div>
+      <div class="flex gap-2 w-full mt-4">
+        <button
+          type="submit"
+          class="bg-[#E7FBB4] text-[#638C6D] px-4 py-2 rounded-lg hover:bg-[#638C6D] hover:text-[#E7FBB4]"
+        >
+          Add
+        </button>
+        <button
+          id="close-popup"
+          class="bg-[#E7FBB4] text-[#638C6D] px-4 py-2 rounded-lg hover:bg-[#638C6D] hover:text-[#E7FBB4]"
+        >
+          Close
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="popup-update" class="hidden fixed inset-0 z-50 flex items-center justify-center">
+  <div class="bg-[#DF6D2D] p-6 rounded-lg shadow-lg w-full max-w-md">
+    <h1 class="text-2xl font-bold text-[#fefefe] mb-4">Update Category</h1>
+    <form action="{{ app_url }}/categories/update" method="POST" class="text-[#638C6D]">
+      <div class="flex items-center gap-2">
+        <input type="hidden" name="update-id" />
+        <input type="hidden" name="user-id" value="{{ user.id }}" />
+        <input
+          type="text"
+          name="update-name"
+          placeholder="Name"
+          class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+          required
+        />
+        <input
+          type="color"
+          name="update-color"
+          class="w-24 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+          required
+        />
+      </div>
+      <div class="flex gap-2 w-full mt-4">
+        <button
+          type="submit"
+          class="bg-[#E7FBB4] text-[#638C6D] px-4 py-2 rounded-lg hover:bg-[#638C6D] hover:text-[#E7FBB4]"
+        >
+          Update
+        </button>
+        <button
+          type="button"
+          id="close-update-popup"
+          class="bg-[#E7FBB4] text-[#638C6D] px-4 py-2 rounded-lg hover:bg-[#638C6D] hover:text-[#E7FBB4]"
+        >
+          Close
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<h1 class="text-4xl font-bold text-[#fefefe] mb-4">Categories</h1>
+<div class="flex flex-col gap-4">
+  <div class="flex items-center justify-end">
+    <button id="add-category" class="bg-[#E7FBB4] text-[#638C6D] px-4 py-2 rounded-lg hover:bg-[#638C6D] hover:text-[#E7FBB4]">
+      Add Category
+    </button>
+  </div>
+  <div id="category-list" class="flex flex-col gap-2">
+    {% for category in categories %}
+      <div class="flex items-center justify-between bg-[#E7FBB4] px-4 py-2 rounded-lg">
+        <div class="flex items-center gap-2 text-[{{ category.color }}]">
+          <i class="fas mt-1 fa-tag"></i>
+          <span class="text-lg">{{ category.name }}</span>
+        </div>
+        <div class="flex gap-2">
+          <button type="button" id="btn-edit-category" class="text-[#638C6D] hover:text-[#DF6D2D]" onclick="updateCategory('{{ category.id }}', '{{ category.name }}', '{{ category.color }}')">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button type="button" id="btn-delete-category" class="text-[#638C6D] hover:text-red-500" onclick="deleteCategory({{ category.id }})">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+  const overlay = document.getElementById('overlay');
+  const popup = document.getElementById('popup');
+  const popupUpdate = document.getElementById('popup-update');
+  const addCategory = document.getElementById('add-category');
+  const closePopup = document.getElementById('close-popup');
+  const categoryList = document.getElementById('category-list');
+  const btnDeleteCategory = document.getElementById('btn-delete-category');
+  const btnEditCategory = document.getElementById('btn-edit-category');
+  const closeUpdatePopup = document.getElementById('close-update-popup');
+
+  const deleteCategory = (id) => {
+    if (confirm('Are you sure you want to delete this category?')) {
+      fetch(`{{ app_url }}/categories/${id}`, {
+        method: 'DELETE',
+        redirect: 'follow',
+      })
+        .then(() => {
+          window.location.reload();
+        })
+        .catch((error) => {
+          alert('Failed to delete category');
+        });
+    }
+  };
+
+  const updateCategory = (id, name, color) => {
+    overlay.classList.remove('hidden');
+    popupUpdate.classList.remove('hidden');
+    document.querySelector('input[name="update-id"]').value = id;
+    document.querySelector('input[name="update-name"]').value = name;
+    document.querySelector('input[name="update-color"]').value = color;
+  };
+
+  addCategory.addEventListener('click', function() {
+    overlay.classList.remove('hidden');
+    popup.classList.remove('hidden');
+  });
+  closePopup.addEventListener('click', function() {
+    overlay.classList.add('hidden');
+    popup.classList.add('hidden');
+  });
+  closeUpdatePopup.addEventListener('click', function() {
+    overlay.classList.add('hidden');
+    popupUpdate.classList.add('hidden');
+  });
+</script>
+{% endblock %}

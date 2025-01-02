@@ -12,7 +12,7 @@
         Welcome to <span class="text-[#1AC468]">$pend</span><span class="text-[#FAB12F]">Wise</span>
       </h1>
       <p class="text-lg text-gray-200 mt-4">A simple budgeting app to help you manage your finances.</p>
-      <a href="{{ app_url ~ '/register' }}" class="bg-[#1AC468] rounded-md p-2 mt-4 transition hover:scale-105 ease-out">Get Started</a>
+      <a href="{{ app_url ~ logged_in ? '/dashboard' : '/register' }}" class="bg-[#1AC468] rounded-md p-2 mt-4 transition hover:scale-105 ease-out">Get Started</a>
     </div>
     <div class="flex justify-center items-center">
       <img src="{{ app_url }}/assets/browser-window.png" alt="Browser Window" class="ml-12" />

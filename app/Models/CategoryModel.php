@@ -16,6 +16,7 @@ class CategoryModel
         public int $id = 0,
         public int $user_id = 0,
         public string $name = '',
+        public string $color = '',
         public string $created_at = '',
         public string $updated_at = '',
     ) {
@@ -33,6 +34,7 @@ class CategoryModel
             id: $array['id'],
             user_id: $array['user_id'],
             name: $array['name'],
+            color: $array['color'],
             created_at: $array['created_at'] ?? '',
             updated_at: $array['updated_at'] ?? '',
         );
