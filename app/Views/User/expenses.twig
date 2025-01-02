@@ -1,6 +1,75 @@
 {% extends "User/_layout.twig" %}
 
 {% block content %}
+<div id="overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40"></div>
+
+<div id="popup" class="hidden fixed inset-0 z-50 flex items-center justify-center">
+  <div class="bg-[#DF6D2D] p-6 rounded-lg shadow-lg w-full max-w-md">
+    <h1 class="text-2xl font-bold text-[#fefefe] mb-4">Update Expense</h1>
+    <form action="{{ app_url }}/expenses/update" method="POST" class="text-[#638C6D]">
+      <input type="hidden" name="update-id" />
+      <div class="flex flex-col">
+        <label for="name" class="text-[#fefefe]">Name</label>
+          <input 
+            type="text" 
+            name="update-name"
+            placeholder="Name" 
+            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            required 
+          />
+        </div>
+        <div class="flex flex-col">
+          <label for="amount" class="text-[#fefefe]">Amount</label>
+          <input 
+            type="text"
+            name="update-amount"
+            placeholder="5000" 
+            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            required 
+          />
+        </div>
+        <div class="flex flex-col">
+          <label for="category" class="text-[#fefefe] flex justify-between items-center">
+            Category <a href="{{ app_url }}/profile/categories" class="text-xs text-blue-800 hover:underline">&lpar;Add category&rpar;</a>
+          </label>
+          <select 
+            name="update-category" 
+            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            required
+          >
+            {% for category in categories %}
+              <option value="{{ category.id }}">{{ category.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="flex flex-col">
+          <label for="date" class="text-[#fefefe]">Date</label>
+          <input 
+            type="date" 
+            name="update-date"
+            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            required
+          />
+        </div>
+        <div class="flex gap-2 w-full mt-4">
+          <button
+            type="submit"
+            class="bg-[#E7FBB4] text-[#638C6D] px-4 py-2 rounded-lg hover:bg-[#638C6D] hover:text-[#E7FBB4]"
+          >
+            Update
+          </button>
+          <button
+            type="button"
+            id="close-popup"
+            class="bg-[#E7FBB4] text-[#638C6D] px-4 py-2 rounded-lg hover:bg-[#638C6D] hover:text-[#E7FBB4]"
+          >
+            Close
+          </button>
+        </div>
+    </form>
+  </div>
+</div>
+
 <h1 class="text-4xl font-bold text-[#fefefe] mb-4">Expenses</h1>
 <div class="flex items-center justify-between">
   <select
@@ -14,11 +83,11 @@
       <option value="{{ date }}">{{ date|date('F Y') }}</option>
     {% endfor %}
   </select>
-  <button id="export-expenses" class="bg-[#E7FBB4] text-[#638C6D] px-4 py-2 rounded-lg hover:bg-[#638C6D] hover:text-[#E7FBB4]">
-    Export
-  </button>
+  <!-- <button id="export-expenses" class="bg-[#E7FBB4] text-[#638C6D] px-4 py-2 rounded-lg hover:bg-[#638C6D] hover:text-[#E7FBB4]"> -->
+  <!--   Export -->
+  <!-- </button> -->
 </div>
-<div class="flex flex-col gap-2 mt-4">
+<div class="flex flex-col gap-2 mt-4 overflow-auto">
   <table class="w-full bg-[#E7FBB4] rounded-lg">
     <thead>
       <tr>
@@ -41,13 +110,20 @@
             <span>{{ expense.category }}</span>
           </td>
           <td class="px-4 py-2 text-[#638C6D]">{{ expense.date|date('d M Y') }}</td>
-          <td class="px-4 py-2 text-[#638C6D]">
-            <button class="edit-expense text-[#638C6D] hover:text-[#DF6D2D]">
+          <td class="px-4 py-2 text-[#638C6D] flex items-center justify-center gap-2">
+            <button
+              type="button"
+              class="edit-expense text-[#638C6D] hover:text-[#DF6D2D]"
+              onclick="updateExpense('{{ expense.id }}', '{{ expense.name }}', '{{ expense.amount }}', '{{ expense.category_id }}', '{{ expense.date }}')"
+            >
               <i class="fas fa-edit"></i>
             </button>
-            <button class="delete-expense text-[#638C6D] hover:text-[#DF6D2D]">
-              <i class="fas fa-trash"></i>
-            </button>
+            <form action="{{ app_url }}/expenses/delete" method="POST" class="inline">
+              <input type="hidden" name="expense-id" value="{{ expense.id }}">
+              <button type="submit" class="text-[#638C6D] hover:text-red-500">
+                <i class="fas fa-trash"></i>
+              </button>
+            </form>
           </td>
         </tr>
       {% endfor %}
@@ -63,4 +139,42 @@
     </tfoot>
   </table>
 </div>
+
+<script>
+const popup = document.getElementById('popup');
+const overlay = document.getElementById('overlay');
+const closePopupBtn = document.getElementById('close-popup');
+
+// Open popup
+const openPopup = () => {
+    popup.classList.remove('hidden');
+    overlay.classList.remove('hidden');
+};
+
+// Close popup
+const closePopup = () => {
+    popup.classList.add('hidden');
+    overlay.classList.add('hidden');
+};
+
+closePopupBtn.addEventListener('click', closePopup);
+
+const updateExpense = (id, name, amount, category, date) => {
+    const updateId = document.querySelector('input[name="update-id"]');
+    const updateName = document.querySelector('input[name="update-name"]');
+    const updateAmount = document.querySelector('input[name="update-amount"]');
+    const updateCategory = document.querySelector('select[name="update-category"]');
+    const updateDate = document.querySelector('input[name="update-date"]');
+    updateId.value = id;
+    updateName.value = name;
+    updateAmount.value = amount;
+    updateCategory.value = category;
+    updateDate.value = date;
+    openPopup();
+};
+
+const urlParams = new URLSearchParams(window.location.search);
+const choosenDate = document.getElementById('choosen-date');
+choosenDate.value = urlParams.get('date');
+</script>
 {% endblock %}

@@ -131,8 +131,10 @@ class UserController extends BaseController
 
         $choosenDate = $_GET['date'] ?? $dates[0];
         $expenses = $this->userService->getExpensesFullDataForUser($user->id, $choosenDate);
+        $categories = $this->userService->getCategoriesForUser($user->id);
 
         echo $this->render('User/expenses.twig', [
+            'categories' => $categories,
             'expenses' => $expenses,
             'dates' => $dates,
         ]);

@@ -27,6 +27,20 @@ class ExpenseService
         return $this->expenseRepository->create(get_object_vars($expense));
     }
 
+    public function getExpenseById(int $expenseId): ?ExpenseModel
+    {
+        $expense = $this->expenseRepository->select('*')->where(['id' => $expenseId])->first();
+        if ($expense) {
+            return ExpenseModel::constructFromArray($expense);
+        }
+        return null;
+    }
+
+    public function deleteExpense(int $expenseId): bool
+    {
+        return $this->expenseRepository->delete(['id' => $expenseId]);
+    }
+
     /**
      * Get all expenses for a user
      *

@@ -60,4 +60,34 @@ class ExpenseController extends BaseController
             return;
         }
     }
+
+    public function deleteExpense(): void
+    {
+        if (!Session::has('email')) {
+            Redirect::withFlash('You must be logged in to access that page')->to('login');
+            return;
+        }
+
+        $user = $this->userService->getUserByEmail(Session::get('email'));
+        if (!$user) {
+            Session::remove('email');
+            Redirect::withFlash('User not found')->to('login');
+            return;
+        }
+
+        $expenseID = $_POST['expense-id'];
+        $expense = $this->expenseService->getExpenseById($expenseID);
+        if (!$expense) {
+            Redirect::withFlash('Expense not found')->back();
+            return;
+        }
+
+        if ($expense->user_id !== $user->id) {
+            Redirect::withFlash('You do not have permission to delete this expense')->back();
+            return;
+        }
+
+        $this->expenseService->deleteExpense($expenseID);
+        Redirect::back();
+    }
 }
