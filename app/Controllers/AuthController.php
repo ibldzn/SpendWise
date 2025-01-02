@@ -87,7 +87,7 @@ class AuthController extends BaseController
             }
 
             $this->userService->createUser($payload);
-            Redirect::with('flash', 'User created successfully')->to('login');
+            Redirect::withFlash('User created successfully')->to('login');
         } catch (\Exception $e) {
             echo $this->render('Auth/register.twig', ['flash' => $e->getMessage()]);
             return;
