@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Helpers\Redirect;
 use App\Helpers\Session;
 use App\Requests\CreateExpenseRequest;
+use App\Requests\UpdateExpenseRequest;
 use App\Services\ExpenseService;
 use App\Services\UserService;
 
@@ -89,5 +90,54 @@ class ExpenseController extends BaseController
 
         $this->expenseService->deleteExpense($expenseID);
         Redirect::back();
+    }
+
+    public function updateExpense(): void
+    {
+        try {
+            if (!Session::has('email')) {
+                Redirect::withFlash('You must be logged in to access that page')->to('login');
+                return;
+            }
+
+            $user = $this->userService->getUserByEmail(Session::get('email'));
+            if (!$user) {
+                Session::remove('email');
+                Redirect::withFlash('User not found')->to('login');
+                return;
+            }
+
+            $expenseID = $_POST['update-id'];
+            $expense = $this->expenseService->getExpenseById($expenseID);
+            if (!$expense) {
+                Redirect::withFlash('Expense not found')->back();
+                return;
+            }
+
+            if ($expense->user_id !== $user->id) {
+                Redirect::withFlash('You do not have permission to update this expense')->back();
+                return;
+            }
+
+            $name = $_POST['update-name'];
+            $amount = $_POST['update-amount'];
+            $categoryID = $_POST['update-category'];
+            $date = $_POST['update-date'];
+            $payload = new UpdateExpenseRequest(
+                id: $expenseID,
+                name: $name,
+                amount: $amount,
+                category_id: $categoryID,
+                date: $date
+            );
+            $payload->validate($expense);
+
+            $this->expenseService->updateExpense($payload);
+
+            Redirect::back();
+        } catch (\Exception $e) {
+            Redirect::withFlash($e->getMessage())->back();
+            return;
+        }
     }
 }

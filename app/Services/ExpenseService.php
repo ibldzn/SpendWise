@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\ExpenseModel;
 use App\Repositories\ExpenseRepository;
 use App\Requests\CreateExpenseRequest;
+use App\Requests\UpdateExpenseRequest;
 
 class ExpenseService
 {
@@ -39,6 +40,11 @@ class ExpenseService
     public function deleteExpense(int $expenseId): bool
     {
         return $this->expenseRepository->delete(['id' => $expenseId]);
+    }
+
+    public function updateExpense(UpdateExpenseRequest $expense): bool
+    {
+        return $this->expenseRepository->update(get_object_vars($expense), ['id' => $expense->id]);
     }
 
     /**

@@ -47,6 +47,7 @@ $router->get('/logout', [$authController, 'logout']);
 $router->get('/dashboard', [$homeController, 'dashboard']);
 $router->post('/add-expense', [$expenseController, 'addExpense']);
 $router->post('/expenses/delete', [$expenseController, 'deleteExpense']);
+$router->post('/expenses/update', [$expenseController, 'updateExpense']);
 $router->post('/add-category', [$categoryController, 'addCategory']);
 $router->delete('/categories/{id}', [$categoryController, 'removeCategory']);
 $router->post('/categories/update', [$categoryController, 'updateCategory']);
