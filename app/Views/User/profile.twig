@@ -132,8 +132,10 @@ updateBtn.addEventListener('click', () => {
     body: formData,
     redirect: 'follow',
   })
-    .then(() => {
+    .then((data) => data.text())
+    .then((text) => {
       // HACK: do something better here
+      alert(text);
       window.location.reload();
     })
     .catch((error) => {

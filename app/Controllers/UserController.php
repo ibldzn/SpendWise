@@ -92,13 +92,16 @@ class UserController extends BaseController
             $payload->validate($user);
 
             if (!$this->userService->updateUser($user->id, $payload)) {
-                Redirect::withFlash('Failed to update account')->to('profile/account');
+                // Redirect::withFlash('Failed to update account')->back();
+                echo 'Failed to update account';
                 return;
             }
 
-            Redirect::withFlash('Account updated')->to('profile/account');
+            // Redirect::withFlash('Account updated')->back();
+            echo 'Account updated';
         } catch (\Exception $e) {
-            Redirect::withFlash($e->getMessage())->to('profile/account');
+            // Redirect::withFlash($e->getMessage())->back();
+            echo $e->getMessage();
             return;
         }
     }
